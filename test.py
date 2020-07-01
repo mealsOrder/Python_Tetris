@@ -1,7 +1,7 @@
 """
 tittle : Practice for python with Tetris
 author : Jang Yun Jae
-last modified: 2020.07.01
+last modified: 2020.07.02
 
 
 """
@@ -9,7 +9,7 @@ last modified: 2020.07.01
 import wx
 import random
 
-## 클래스 선언 부분 ##
+### 클래스 선언 부분 ###
 
 ##테트리스 클래스 생성
 class Tetris(wx.Frame):
@@ -71,19 +71,102 @@ class Board(wx.Panel):
 
     ## 모양설정 및 모양의 좌표 설정
     def setShapeAt(self,x,y,shape):
-        self.board[(y*Board.BoardWidth)+x]=shape
+        self.board[(y*Board.BoardWidth)+x] = shape
+
+    ## 사각블럭 폭 
+    def squareWidth(self):
+        return self.GetClientSize().GetWidth() // Board.BoardWidth      ## // 연산자 >> 나눈것의 몫만 취함(정수형)
+
+    ## 사각블럭 높이
+    def squareHeight(self):
+        return self.GetClientSize().GetHeight() // Board.BoardHeight
+
+    ## 시작 함수
+    def start(self):
+        if self.isPaused:           ## 만약 self.isPaused가 참이라면 반환값 없음  << ?? 맞는 표현인가?
+            return
+
+        self.isStarted = True       
+        self.isWitingAgterLine = False
+        self.numLinesRemoved = 0    ## 
+        self.clearBoard()
+
+        self.newPiece()
+        self.timer.Start(Board.Speed)
+
+    ## 정지 함수
+    def pause(self):
+        if not self.isPaused:       ## 만약 self.isPaused가 아니 라면 반환값 없음  << ?? 맞는 표현인가?
+            return
+
+        self.isPaused = not self.isPaused
+        statusbar = self.GetParent().statusbar
+
+        if self.isPaused:
+            self.timer.Stop()
+            statusbar.SetStatusText('paused')
+        else:
+            self.timer.Start(Board.Speed)
+            statusbar.SetStatusText(str(self.numLinesRemoved))
+
+        self.Refresh()
+
+    ## 보드 초기화 함수
+    def clearBoard(self):
+        for i in range(Board.BoardHeight * Board.BoardWidth):
+            self.board.append(Tetrominoes.NoShape)
+
+    ## 그림 그리는 함수
+    def OnPaint(self, event):
+        
+        dc = wx.PaintDC(self)
+
+        size = self.GetClientSize()
+        boardTop = size.GetHeight() - Board.BoardHeight * self.squareHeight()
+
+        for i in range(Board.BoardHeight):
+            for j in range(Board.BoardWidth):
+
+                shape = self.ShapeAt(j, Board.BoardHeight - i -1)
+
+                if shape != Tetrominoes.NoShape:
+                    self.drawSquare(dc,
+                        0 + j * self.squareWidth(),
+                        boardTop + i * self.squareHeight(), shape)
+
+        if self.curPiece.shape() != Tetrominoes.NoShape:
+            for i in range(4):
+                x = self.curX + self.curPiece.x(i)
+                y = self.CurY - self.curPiece.y(i)
+
+                self.drawSquare(dc, 0 + x * self.squareWidth(),
+                    boardTop + (Board.BoardHeight - y - 1) * self.squareHeight(),
+                    self.curPiece.shape())
+    
 
     
     
         
-## 함수 선언 부분 ##
 
 
 
 
-## 변수 선언 부분 ##
+
+
 
 
 
 
 ## 메인 부분 ##
+        
+def main():
+
+    app = wx.App()
+    ex = Tetris(None)
+    ex.Show()
+    app.MainLoop()
+
+
+if __name__ == '__main__':
+    main()
+

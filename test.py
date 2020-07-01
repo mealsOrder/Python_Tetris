@@ -1,6 +1,8 @@
 """
-author : mealsOrder
+tittle : Practice for python with Tetris
+author : Jang Yun Jae
 last modified: 2020.07.01
+
 
 """
 
@@ -59,9 +61,20 @@ class Board(wx.Panel):
         self.isStarted=False
         self.isPaused=False
 
-        self.Bind(wx.EVT_PAINT, self.OnPaint)
-        
-        
+        self.Bind(wx.EVT_PAINT, self.OnPaint)                   ## 그림그리기 이벤트 묶기
+        self.Bind(wx.EVT_KEY_DOWN, self.OnKeyDown)              ## 키를 눌렀을때 이벤트
+        self.Bind(wx.EVT_TIMER, self.OnTimer, id=Board.ID_TIMER)## 타이머 묶기
+
+    ## 모양의 좌표
+    def shapeAt(self,x,y):
+        return self.board[(y*Board.BoardWidth)+x]       ## y좌표 x 보드의 너비 + x좌표
+
+    ## 모양설정 및 모양의 좌표 설정
+    def setShapeAt(self,x,y,shape):
+        self.board[(y*Board.BoardWidth)+x]=shape
+
+    
+    
         
 ## 함수 선언 부분 ##
 
